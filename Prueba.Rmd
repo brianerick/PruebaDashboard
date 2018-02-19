@@ -1,0 +1,83 @@
+---
+title: "Datos"
+output: 
+  flexdashboard::flex_dashboard:
+    vertical_layout: scroll
+    theme: yeti
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+library(ggplot2)
+library(flexdashboard)
+library(zoo)
+datos <- readr::read_csv('datos.csv')
+datos$Periodo<-as.yearmon(as.character(datos$Periodo), "%Y%m")
+datos$Periodo<-as.factor(datos$Periodo)
+```
+
+Barra Lateral {.sidebar}
+=======================================================================
+
+Datos mensuales relacionados a las p?ginas vistas de los portales del Grupo en el 2017.
+
+```{r}
+
+selectInput("web", label = "Seleccione la web",
+            choices = c("El Comercio","Depor","Trome","Gestion","Peru 21","Publimetro","Peru.com"), selected = "El Comercio")
+```
+
+Es un dashboard empleando `flexdashboard` y `shiny` en ***R***. 
+
+Page 1 
+=======================================================================
+
+### Tabla de Datos
+
+```{r}
+
+renderTable({
+  subset(datos,Web==input$web)[,-1]
+})
+
+```
+
+General {data-orientation=rows}
+=======================================================================
+
+
+
+Fila 1 {.tabset}
+-----------------------------------------------------------------------
+
+###Grafico de Barras
+
+```{r}
+library(ggplot2)
+selectInput("tipo", label = "Seleccione la regi?n",
+            choices = c("Total","Peru","Estados Unidos","Extranjero"), selected = "Total")
+renderPlot({
+datos1<-subset(datos,Web==input$web)
+subconjunto <- subset(datos1, Tipo==input$tipo, select = c(Periodo,Pageviews))
+ggplot(subconjunto, aes(x = Periodo, y=Pageviews)) +
+    geom_bar(stat="identity") +
+    labs(list(x = "Periodo", y = "Pageviews"))
+})
+```
+
+
+###Series
+
+```{r}
+library(highcharter)
+library(dplyr)
+library(tidyverse)
+
+renderHighchart({
+datos1<-subset(datos,Web==input$web)
+data <- datos1 %>%
+dplyr::filter(Tipo %in% c('Peru', 'Estados Unidos',"Extranjero")) 
+
+hchart(data, type = 'line', hcaes(y = Pageviews, group = Tipo, x = Periodo))
+})
+```
