@@ -16,7 +16,7 @@ datos$Periodo<-as.yearmon(as.character(datos$Periodo), "%Y%m")
 datos$Periodo<-as.factor(datos$Periodo)
 ```
 
-Barra Lateral {.sidebar}
+Barra Lateral {.sidebar .mobile}
 =======================================================================
 
 Datos mensuales relacionados a las p?ginas vistas de los portales del Grupo en el 2017.
